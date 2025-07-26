@@ -1,99 +1,69 @@
-'''
-caso de teste -> aceita palavras com sufixo abc
-Q = ["q0","q1", "q2", "q3"]
-alfabeto = "abc"
-programa = {
-    'q0': {'a': 'q1', 'b': 'q0', 'c': 'q0'},
-    'q1': {'a': 'q1', 'b': 'q2', 'c': 'q0'},
-    'q2': {'a': 'q1', 'b': 'q0', 'c': 'q3'},
-    'q3': {'a': 'q1', 'b': 'q2', 'c': 'q0'}
-}
-estado_inicial = "q0"
-F = ["q3"]
-
-q0 q1 q2 q3
-abc
-q0 a q1
-q0 b q0
-q0 c q0
-q1 a q1 
-q1 b q2
-q1 c q0
-q2 a q1
-q2 b q0
-q2 c q3
-q3 a q1
-q3 b q2
-q3 c q0
-.
-q0
-q3
-'''
-def limpa_tela():
-    import os
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-# ENTRADA
-continuar = True
-tem_maquina = False
-
-while(continuar):
-    limpa_tela()
-    print("1 - Adicionar AFD")
-    print("2 - Rodar palavra")
-    print("3 - Sair")
-
-    opcao = input("Digite uma opcao: ")
-
-    limpa_tela()
-    if opcao == '1':
-        # ADICIONA UMA MAQUINA
-        linha = input("Digite os estados separando por espacos (ex: q0 q1 q2 ...):\n")
-        Q = linha.split()
-        
-        alfabeto = input("Digite o alfabeto, em string sem espacos: \n")
-
-        print("Digite a funcao programa (ex q0 a q1), '.' para terminar:")
-        programa = {}
-        linha = input() 
-        while (linha != '.'):
-            estado_origem, simbolo, estado_destino = linha.split()
-        
-            if estado_origem not in programa:
-                programa[estado_origem] = {}
-        
-            programa[estado_origem][simbolo] = estado_destino
-
-            linha = input()
-
-        estado_inicial = input("Digite o estado inicial: \n")
-        
-        linha = input("Digite os estados finais separando por espacos (ex: q0 q1 q2 ...):\n") 
-        F = linha.split()
-        
-        tem_maquina = True
-    elif opcao == '2':
-        # testa palavras
-        if tem_maquina:
-            fita = input("Digite a palavra: ")
-
-            estado_atual = estado_inicial
+class AFD:
+    def __init__(self, alfa, estados, programa, estado_inicial, estados_finais):
+        self.alfabeto = alfa
+        self.estados = estados
+        self.programa = programa
+        self.estado_inicial = estado_inicial
+        self.estados_finais = estados_finais
+        self.tem_maquina = True
+    
+    def aceita(self, fita):
+        if self.tem_maquina == True:
+            estado_atual = self.estado_inicial
             try: 
                 for simbolo in fita:
-                    estado_atual = programa[estado_atual][simbolo]
+                    estado_atual = self.programa[estado_atual][simbolo]
 
-                if estado_atual in F:
-                    print("\nPalavra aceita na linguagem definida pelo AFD!")
+                if estado_atual in self.estados_finais:
+                    return True
                 else:
-                    print("\nPalavra não aceita na linguagem!")
+                    return False
             except KeyError:
-                print("Transição inválida: símbolo ou estado não encontrado.")
+                print(f"\tTransição inválida: símbolo ou estado não encontrado na palavra {fita}")
+                return False
         else:
             print("Adicione uma AFD!")
-        
-        input("\nPressione enter para continuar...")
-    elif opcao == '3':
-        # SAIR
-        continuar = False
-    else:
-        limpa_tela()
+
+
+if __name__ == "__main__":
+    print("Definindo AFD:")
+    print("\tCaso exemplo: aceita palavras com sufixo abc")
+    
+    print("\tAlfabeto: {a, b, c}")
+    alfabeto = "abc"
+
+    print("\tConjunto de estados: {q0, q1, q2, q3}")
+    estados = ["q0","q1","q2","q3"]
+
+    print("\tFunção Programa:")
+    print("\t\t|    |  a   |  b   |  c")
+    print("\t\t| q0 |  q1  |  q0  |  q0")
+    print("\t\t| q1 |  q1  |  q2  |  q0")
+    print("\t\t| q2 |  q1  |  q0  |  q3")
+    print("\t\t| q3 |  q1  |  q2  |  q0")
+    programa = {
+        'q0': {'a': 'q1', 'b': 'q0', 'c': 'q0'},
+        'q1': {'a': 'q1', 'b': 'q2', 'c': 'q0'},
+        'q2': {'a': 'q1', 'b': 'q0', 'c': 'q3'},
+        'q3': {'a': 'q1', 'b': 'q2', 'c': 'q0'}
+    }
+
+    print("\tEstado inicial = q0")    
+    estado_inicial = "q0"
+    
+    print("\tConjunto de estados finais: {q3}")
+    estados_finais = ["q3"]
+
+    # iniciando AFD
+    automato = AFD(alfabeto, estados, programa, estado_inicial, estados_finais)
+
+    # testes
+    print("\n Testes:")
+    testes = ["aaaacb", "abcabc", "abccba", "aaaabc", "abcde"]
+
+    for tt in testes:
+        if automato.aceita(tt):
+            print(f"\tAceita palavra {tt}")
+        else:
+            print(f"\tRejeita palavra {tt}")
+
